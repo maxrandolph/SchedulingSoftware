@@ -66,6 +66,10 @@ public class Customer implements Serializable {
     @Column(name = "lastUpdateBy")
     private String lastUpdateBy;
 
+    // Added non-entity properties.
+    private String addressStr;
+    private String phoneStr;
+
     public Customer() {
     }
 
@@ -73,7 +77,8 @@ public class Customer implements Serializable {
         this.customerId = customerId;
     }
 
-    public Customer(Integer customerId, String customerName, int addressId, boolean active, Date createDate, String createdBy, Date lastUpdate, String lastUpdateBy) {
+    public Customer(Integer customerId, String customerName, int addressId, boolean active, Date createDate, String createdBy, Date lastUpdate, String lastUpdateBy,
+            String addressStr, String phoneStr) {
         this.customerId = customerId;
         this.customerName = customerName;
         this.addressId = addressId;
@@ -82,6 +87,8 @@ public class Customer implements Serializable {
         this.createdBy = createdBy;
         this.lastUpdate = lastUpdate;
         this.lastUpdateBy = lastUpdateBy;
+        this.addressStr = addressStr;
+        this.phoneStr = phoneStr;
     }
 
     public Integer getCustomerId() {
@@ -148,6 +155,22 @@ public class Customer implements Serializable {
         this.lastUpdateBy = lastUpdateBy;
     }
 
+    public String getAddressStr() {
+        return addressStr;
+    }
+
+    public void setAddressStr(String value) {
+        this.addressStr = value;
+    }
+
+    public String getPhoneStr() {
+        return phoneStr;
+    }
+
+    public void setPhoneStr(String value) {
+        this.phoneStr = value;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -172,5 +195,5 @@ public class Customer implements Serializable {
     public String toString() {
         return "schedulingsoftware.Customer[ customerId=" + customerId + " ]";
     }
-    
+
 }
