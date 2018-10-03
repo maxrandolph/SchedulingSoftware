@@ -9,14 +9,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Properties;
 import javafx.application.Application;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
 /**
@@ -26,6 +25,9 @@ import javafx.stage.Stage;
 public class SchedulingSoftware extends Application {
 
     public static ConnectionManager conManager;
+    // JavaFX stuff
+    public static Stage stage;
+    public static Parent root;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -62,5 +64,15 @@ public class SchedulingSoftware extends Application {
         } catch (FileNotFoundException ex) {
             System.out.println("File not found: " + ex);
         }
+    }
+
+    @FXML
+    public static void ChangeScene(String fxmlFile, Button buttonClicked) throws IOException {
+        stage = (Stage) buttonClicked.getScene().getWindow();
+        root = FXMLLoader.load(SchedulingSoftware.class.getResource(fxmlFile));
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.centerOnScreen();
+        stage.show();
     }
 }

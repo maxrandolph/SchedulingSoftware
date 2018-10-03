@@ -5,6 +5,7 @@
  */
 package schedulingsoftware;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,7 +38,7 @@ public class LoginController implements Initializable {
     private TextField txtPassword;
 
     @FXML
-    private void handleBtnLoginAction(ActionEvent event) throws SQLException {
+    private void handleBtnLoginAction(ActionEvent event) throws SQLException, IOException {
         boolean validCreds = false;
         try {
             // Inits and opens the connection
@@ -53,6 +54,7 @@ public class LoginController implements Initializable {
             }
             if (validCreds) {
                 System.out.println("Logged in!");
+                SchedulingSoftware.ChangeScene("MainView.fxml", btnLogin);
             } else {
                 System.out.println("Failed login.");
             }

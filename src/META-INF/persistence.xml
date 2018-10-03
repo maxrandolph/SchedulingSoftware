@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="SchedulingSoftwarePU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>schedulingsoftware.Customer_1</class>
+    <class>schedulingsoftware.Entities.Incrementtypes</class>
+    <class>schedulingsoftware.Entities.Appointment</class>
+    <class>schedulingsoftware.Entities.Address</class>
+    <class>schedulingsoftware.Entities.Reminder</class>
+    <class>schedulingsoftware.Entities.City</class>
+    <class>schedulingsoftware.Entities.User</class>
+    <class>schedulingsoftware.Entities.Country</class>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://52.206.157.109:3306/U05mLi?zeroDateTimeBehavior=convertToNull"/>
+      <property name="javax.persistence.jdbc.user" value="U05mLi"/>
+      <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+      <property name="javax.persistence.jdbc.password" value="53688547355"/>
+    </properties>
+  </persistence-unit>
+</persistence>
