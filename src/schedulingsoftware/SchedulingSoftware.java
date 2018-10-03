@@ -17,10 +17,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javax.activation.DataSource;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import schedulingsoftware.DAL.LoginDAL;
 
 /**
  *
@@ -32,24 +28,14 @@ public class SchedulingSoftware extends Application {
     public static Connection con = null;
     public static Statement stmt = null;
 
-    static {
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            System.out.println("Loaded MySQL Driver.");
-
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Unable to load MySQL Driver." + ex);
-        }
-    }
-
     @Override
     public void start(Stage stage) throws Exception {
 
         InitConnectionInfo();
         // Database connection context
-
-//        Context context = new InitialContext();
-//        DataSource dataSource = (DataSource) context.lookup("java:comp/env/jdbc/myDB");
+        ConnectionManager conManager = new ConnectionManager();
+        conManager.init();
+        con = conManager.getConnection();
 
         Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
 

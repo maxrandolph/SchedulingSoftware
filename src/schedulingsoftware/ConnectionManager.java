@@ -1,7 +1,6 @@
 package schedulingsoftware;
 
 import java.sql.*;
-import com.mysql.jdbc;
 
 
 /*
@@ -15,7 +14,7 @@ import com.mysql.jdbc;
  */
 public class ConnectionManager {
 
-    private Connection myConnection;
+    private Connection connection;
 
     /**
      * Creates a new instance of MyDBConnection
@@ -29,8 +28,8 @@ public class ConnectionManager {
         try {
 
             Class.forName("com.mysql.jdbc.Driver");
-            myConnection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost/nonidb", "noniko", ""
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://52.206.157.109/U05mLi", "U05mLi", "53688547355"
             );
         } catch (Exception e) {
             System.out.println("Failed to get connection");
@@ -38,8 +37,8 @@ public class ConnectionManager {
         }
     }
 
-    public Connection getMyConnection() {
-        return myConnection;
+    public Connection getConnection() {
+        return connection;
     }
 
     public void close(ResultSet rs) {
@@ -66,10 +65,10 @@ public class ConnectionManager {
 
     public void destroy() {
 
-        if (myConnection != null) {
+        if (connection != null) {
 
             try {
-                myConnection.close();
+                connection.close();
             } catch (Exception e) {
             }
 
