@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Properties;
 import javafx.application.Application;
@@ -24,18 +25,14 @@ import javafx.stage.Stage;
  */
 public class SchedulingSoftware extends Application {
 
-    public static ConnectionInfo connectionInfo;
-    public static Connection con = null;
-    public static Statement stmt = null;
+    public static ConnectionManager conManager;
 
     @Override
     public void start(Stage stage) throws Exception {
 
         InitConnectionInfo();
         // Database connection context
-        ConnectionManager conManager = new ConnectionManager();
-        conManager.init();
-        con = conManager.getConnection();
+        conManager = new ConnectionManager();
 
         Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
 
@@ -65,8 +62,5 @@ public class SchedulingSoftware extends Application {
         } catch (FileNotFoundException ex) {
             System.out.println("File not found: " + ex);
         }
-
-        connectionInfo = new ConnectionInfo(prop.getProperty("database"), prop.getProperty("server"),
-                prop.getProperty("username"), prop.getProperty("password"));
     }
 }

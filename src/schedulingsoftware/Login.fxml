@@ -16,7 +16,7 @@
                   <Font name="System Bold" size="15.0" />
                </font>
             </Label>
-            <TextField layoutX="34.0" layoutY="64.0" prefHeight="25.0" prefWidth="208.0" promptText="Username" />
+            <TextField fx:id="txtUsername" layoutX="34.0" layoutY="64.0" prefHeight="25.0" prefWidth="208.0" promptText="Username" />
             <PasswordField fx:id="txtPassword" layoutX="35.0" layoutY="101.0" prefHeight="25.0" prefWidth="208.0" promptText="Password" />
             <Button fx:id="btnExit" layoutX="150.0" layoutY="137.0" mnemonicParsing="false" onAction="#HandleBtnExitAction" prefHeight="25.0" prefWidth="92.0" text="Exit" />
               <Button fx:id="btnLogin" layoutX="34.0" layoutY="137.0" onAction="#handleBtnLoginAction" prefHeight="25.0" prefWidth="92.0" text="Login" />

@@ -16,14 +16,11 @@ public class ConnectionManager {
 
     private Connection connection;
 
-    /**
-     * Creates a new instance of MyDBConnection
-     */
     public ConnectionManager() {
 
     }
 
-    public void init() {
+    public Connection open() {
 
         try {
 
@@ -31,14 +28,11 @@ public class ConnectionManager {
             connection = DriverManager.getConnection(
                     "jdbc:mysql://52.206.157.109/U05mLi", "U05mLi", "53688547355"
             );
-        } catch (Exception e) {
+            return connection;
+        } catch (ClassNotFoundException | SQLException e) {
             System.out.println("Failed to get connection");
-            e.printStackTrace();
+            return null;
         }
-    }
-
-    public Connection getConnection() {
-        return connection;
     }
 
     public void close(ResultSet rs) {
@@ -52,7 +46,7 @@ public class ConnectionManager {
         }
     }
 
-    public void close(java.sql.Statement stmt) {
+    public void close(Statement stmt) {
 
         if (stmt != null) {
             try {

@@ -6,6 +6,11 @@
 package schedulingsoftware;
 
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,8 +37,28 @@ public class LoginController implements Initializable {
     private TextField txtPassword;
 
     @FXML
-    private void handleBtnLoginAction(ActionEvent event) {
-        System.out.println("You clicked me!");
+    private void handleBtnLoginAction(ActionEvent event) throws SQLException {
+        boolean validCreds = false;
+        try {
+            // Inits and opens the connection
+            Connection connection = SchedulingSoftware.conManager.open();
+
+            PreparedStatement statement = connection.prepareStatement("select 1 from user where userId=? and password=?");
+            statement.setString(1, txtUsername.getText());
+            statement.setString(2, txtPassword.getText());
+
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                validCreds = true;
+            }
+            if (validCreds) {
+                System.out.println("Logged in!");
+            } else {
+                System.out.println("Failed login.");
+            }
+        } catch (SQLException ex) {
+            System.out.println("SQL Exception thrown: " + ex);
+        }
     }
 
     @FXML
