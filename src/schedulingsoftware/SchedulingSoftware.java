@@ -17,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import schedulingsoftware.Entities.User;
 
 /**
  *
@@ -28,6 +29,8 @@ public class SchedulingSoftware extends Application {
     // JavaFX stuff
     public static Stage stage;
     public static Parent root;
+    public static int currentUserId;
+    public static String currentUserName;
 
     @Override
     public void start(Stage stage) throws Exception {

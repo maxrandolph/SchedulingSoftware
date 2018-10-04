@@ -44,17 +44,19 @@ public class LoginController implements Initializable {
             // Inits and opens the connection
             Connection connection = SchedulingSoftware.conManager.open();
 
-            PreparedStatement statement = connection.prepareStatement("select 1 from user where userId=? and password=?");
+            PreparedStatement statement = connection.prepareStatement("select userId from user where userName=? and password=?");
             statement.setString(1, txtUsername.getText());
             statement.setString(2, txtPassword.getText());
-
+            System.out.println(statement);
             ResultSet result = statement.executeQuery();
             while (result.next()) {
                 validCreds = true;
+                //SchedulingSoftware.currentUserId = 
             }
             if (validCreds) {
                 System.out.println("Logged in!");
                 SchedulingSoftware.ChangeScene("MainView.fxml", btnLogin);
+                SchedulingSoftware.currentUserName = txtUsername.getText();
             } else {
                 System.out.println("Failed login.");
             }

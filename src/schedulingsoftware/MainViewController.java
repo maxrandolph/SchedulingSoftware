@@ -65,14 +65,14 @@ public class MainViewController implements Initializable {
             customerData = FXCollections.observableArrayList();
             // Execute query and store result in a resultset
             ResultSet rs = conn.createStatement().executeQuery(
-                    "SELECT customer.*, "
-                    + "address.address, address.phone FROM customer left join "
-                    + "address on address.addressId = customer.addressId;");
+                    "SELECT customer.customerId,customer.customerName,address.phone,address.address,address.address2,address.postalCode,city.city, country.country FROM customer \n"
+                    + "left join address on address.addressId = customer.addressId\n"
+                    + "left join city on address.cityId = city.cityId\n"
+                    + "left join country on country.countryId = city.countryId;");
             while (rs.next()) {
                 //get customers
-                customerData.add(new Customer(rs.getInt(1), rs.getString(2),
-                        rs.getInt(3), rs.getBoolean(4), rs.getDate(5),
-                        rs.getString(6), rs.getDate(7), rs.getString(8), rs.getString(9), rs.getString(10)));
+                customerData.add(new Customer(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
+                        rs.getString(6), rs.getString(7), rs.getString(8)));
             }
 
         } catch (SQLException ex) {
@@ -149,16 +149,17 @@ public class MainViewController implements Initializable {
         }
     }
 
-    private void handleBtnAddCustomerAction(ActionEvent event) throws SQLException, IOException {
+    public void handleBtnAddCustomerAction(ActionEvent event) throws SQLException, IOException {
         try {
             Connection conn = SchedulingSoftware.conManager.open();
             customerData = FXCollections.observableArrayList();
             // Execute query and store result in a resultset
-            ResultSet rs = conn.createStatement().executeQuery(
-                    "SELECT COUNT(*) FROM customer;");
-            customerData.add(new Customer(rs.getInt(1), "New Customer",
-                    rs.getInt(3), rs.getBoolean(4), rs.getDate(5),
-                    rs.getString(6), rs.getDate(7), rs.getString(8), rs.getString(9), rs.getString(10)));
+            conn.createStatement().executeUpdate(
+                    "insert into customer (customerName, addressId, active, createdBy, lastUpdateBy, createDate)values('new customer', 0, 1,'"
+                    + SchedulingSoftware.currentUserName + "'" + SchedulingSoftware.currentUserName + "', now());");
+//            customerData.add(new Customer(rs.getInt(1), "New Customer",
+//                    rs.getInt(3), rs.getBoolean(4), rs.getDate(5),
+//                    rs.getString(6), rs.getDate(7), rs.getString(8), rs.getString(9), rs.getString(10)));
 
         } catch (SQLException ex) {
             System.err.println("Error" + ex);

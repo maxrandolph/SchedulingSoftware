@@ -13,14 +13,17 @@
          <font>
             <Font name="System Bold" size="22.0" />
          </font></Label>
-      <TableView fx:id="tableCustomer" editable="true" layoutX="82.0" layoutY="104.0" prefHeight="200.0" prefWidth="423.0">
+      <TableView fx:id="tableCustomer" editable="true" layoutX="82.0" layoutY="104.0" prefHeight="200.0" prefWidth="775.0">
         <columns>
           <TableColumn fx:id="columnName" prefWidth="135.0" text="Name" />
-          <TableColumn fx:id="columnAddress" prefWidth="172.0" text="Address" />
-            <TableColumn fx:id="columnPhone" prefWidth="115.0" text="Phone" />
+          <TableColumn fx:id="columnAddress" prefWidth="171.0" text="Address" />
+            <TableColumn prefWidth="116.0" text="Address2" />
+            <TableColumn prefWidth="115.0" text="City" />
+            <TableColumn prefWidth="115.0" text="Country" />
+            <TableColumn fx:id="columnPhone" prefWidth="122.0" text="Phone" />
         </columns>
       </TableView>
-      <Button layoutX="82.0" layoutY="314.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="110.0" text="Add Customer" />
+      <Button fx:id="btnAddCustomer" layoutX="82.0" layoutY="314.0" mnemonicParsing="false" onAction="#handleBtnAddCustomerAction" prefHeight="25.0" prefWidth="110.0" text="Add Customer" />
       <Button layoutX="239.0" layoutY="314.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="110.0" text="Delete Customer" />
       <Button fx:id="btnSaveCustomer" layoutX="395.0" layoutY="314.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="110.0" text="Save Changes" />
       <Label alignment="BOTTOM_LEFT" layoutX="202.0" layoutY="79.0" prefHeight="19.0" prefWidth="267.0" text="(Double click row to edit, press Enter to save changes.)">

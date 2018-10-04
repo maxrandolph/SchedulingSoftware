@@ -67,8 +67,12 @@ public class Customer implements Serializable {
     private String lastUpdateBy;
 
     // Added non-entity properties.
-    private String addressStr;
-    private String phoneStr;
+    private String address;
+    private String phone;
+    private String address2;
+    private String city;
+    private String country;
+    private String postalCode;
 
     public Customer() {
     }
@@ -77,18 +81,16 @@ public class Customer implements Serializable {
         this.customerId = customerId;
     }
 
-    public Customer(Integer customerId, String customerName, int addressId, boolean active, Date createDate, String createdBy, Date lastUpdate, String lastUpdateBy,
-            String addressStr, String phoneStr) {
+    public Customer(Integer customerId, String customerName, String phone, String address, String address2, String postalCode, String city, String country) {
         this.customerId = customerId;
         this.customerName = customerName;
-        this.addressId = addressId;
-        this.active = active;
-        this.createDate = createDate;
-        this.createdBy = createdBy;
-        this.lastUpdate = lastUpdate;
-        this.lastUpdateBy = lastUpdateBy;
-        this.addressStr = addressStr;
-        this.phoneStr = phoneStr;
+        this.address = address;
+        this.address2 = address2;
+        this.phone = phone;
+        this.city = city;
+        this.country = country;
+        this.postalCode = postalCode;
+
     }
 
     public Integer getCustomerId() {
@@ -155,20 +157,52 @@ public class Customer implements Serializable {
         this.lastUpdateBy = lastUpdateBy;
     }
 
-    public String getAddressStr() {
-        return addressStr;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAddressStr(String value) {
-        this.addressStr = value;
+    public void setAddress(String value) {
+        this.address = value;
     }
 
-    public String getPhoneStr() {
-        return phoneStr;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setPhoneStr(String value) {
-        this.phoneStr = value;
+    public void setPhone(String value) {
+        this.phone = value;
+    }
+
+    public String getAddress2() {
+        return address2;
+    }
+
+    public void setAddress2(String value) {
+        this.address2 = value;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String value) {
+        this.city = value;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String value) {
+        this.country = value;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String value) {
+        this.postalCode = value;
     }
 
     @Override
