@@ -68,24 +68,7 @@ public class MainViewController implements Initializable {
 
     @FXML
     public void initializeTableViewWithDatabase() {
-        try {
-            Connection conn = SchedulingSoftware.conManager.open();
-            customerData = FXCollections.observableArrayList();
-            // Execute query and store result in a resultset
-            ResultSet rs = conn.createStatement().executeQuery(
-                    "SELECT customer.customerId,customer.customerName,address.phone,address.address,address.address2,address.postalCode,city.city, country.country, address.addressId, city.cityId, country.countryId FROM customer \n"
-                    + "left join address on address.addressId = customer.addressId\n"
-                    + "left join city on address.cityId = city.cityId\n"
-                    + "left join country on country.countryId = city.countryId;");
-            while (rs.next()) {
-                //get customers
-                customerData.add(new Customer(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
-                        rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(9), rs.getInt(10), rs.getInt(11)));
-            }
-            conn.close();
-        } catch (SQLException ex) {
-            System.err.println("Error" + ex);
-        }
+        GetDataFromDatabase();
 
         //Set cell values to tableCustomer.
         tableCustomer.setEditable(true);
@@ -122,6 +105,8 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setCustomerName(event.getNewValue());
             updateData("customer", event.getNewValue(), customer.getCustomerId(), "customerName", "customerId");
+            refreshCustomerTable();
+
         }
         );
         columnAddress2.setOnEditCommit(event
@@ -129,6 +114,8 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setAddress2(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "address2", "AddressId");
+            refreshCustomerTable();
+
         }
         );
         columnCity.setOnEditCommit(event
@@ -136,6 +123,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setCity(event.getNewValue());
             updateData("city", event.getNewValue(), customer.getCityId(), "city", "CityId");
+            refreshCustomerTable();
         }
         );
         columnAddress.setOnEditCommit(event
@@ -143,6 +131,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setAddress(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "address", "AddressId");
+            refreshCustomerTable();
         }
         );
         columnPhone.setOnEditCommit(event
@@ -150,6 +139,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setPhone(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "phone", "AddressId");
+            refreshCustomerTable();
         }
         );
         columnZip.setOnEditCommit(event
@@ -157,6 +147,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setPostalCode(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "postalCode", "AddressId");
+            refreshCustomerTable();
         }
         );
         columnCountry.setOnEditCommit(event
@@ -164,6 +155,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setCountry(event.getNewValue());
             updateData("country", event.getNewValue(), customer.getCountryId(), "country", "countryId");
+            refreshCustomerTable();
         }
         );
         tableCustomer.setItems(null);
@@ -202,16 +194,146 @@ public class MainViewController implements Initializable {
             Connection conn = SchedulingSoftware.conManager.open();
             customerData = FXCollections.observableArrayList();
             // Execute query and store result in a resultset
+            CreateNewCustomer();
             conn.createStatement().executeUpdate(
-                    "insert into customer (customerName, addressId, active, createdBy, lastUpdateBy, createDate)values('new customer', 0, 1,'"
-                    + SchedulingSoftware.currentUserName + "'" + SchedulingSoftware.currentUserName + "', now());");
-//            customerData.add(new Customer(rs.getInt(1), "New Customer",
-//                    rs.getInt(3), rs.getBoolean(4), rs.getDate(5),
-//                    rs.getString(6), rs.getDate(7), rs.getString(8), rs.getString(9), rs.getString(10)));
-
+                    "insert into country (country, createdBy, lastUpdateBy, createDate)values('New City','"
+                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());"
+            );
+            System.out.println("insert into country (country, createdBy, lastUpdateBy, createDate)values('New Country','"
+                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());"
+            );
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
         }
     }
 
+    @FXML
+    private void handleBtnSaveChanges(ActionEvent event) {
+        refreshCustomerTable();
+    }
+
+    public void refreshCustomerTable() {
+        System.out.println("refreshing dat");
+        customerData.removeAll(customerData);
+        GetDataFromDatabase();
+        tableCustomer.setItems(null);
+        tableCustomer.setItems(customerData);
+
+    }
+
+    private void GetDataFromDatabase() {
+        try {
+            Connection conn = SchedulingSoftware.conManager.open();
+            customerData = FXCollections.observableArrayList();
+            // Execute query and store result in a resultset
+            ResultSet rs = conn.createStatement().executeQuery(
+                    "SELECT customer.customerId,customer.customerName,address.phone,address.address,address.address2,address.postalCode,city.city, country.country, address.addressId, city.cityId, country.countryId FROM customer \n"
+                    + "left join address on address.addressId = customer.addressId\n"
+                    + "left join city on address.cityId = city.cityId\n"
+                    + "left join country on country.countryId = city.countryId;");
+            while (rs.next()) {
+                //get customers
+                customerData.add(new Customer(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
+                        rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(9), rs.getInt(10), rs.getInt(11)));
+            }
+        } catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        }
+    }
+
+    // Returns Id of country just created.
+    private int CreateNewCountry() {
+        try {
+            Connection conn = SchedulingSoftware.conManager.open();
+            // Execute query and store result in a resultset
+            conn.createStatement().executeUpdate(
+                    "insert into country (country, createdBy, lastUpdateBy, createDate)values('New City','"
+                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());"
+            );
+//            System.out.println("insert into country (country, createdBy, lastUpdateBy, createDate)values('New Country','"
+//                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());"
+//            );
+
+            ResultSet rs = conn.createStatement().executeQuery(
+                    "select max(countryId) from country;");
+            rs.next();
+            return (int) ((Number) rs.getObject(1)).intValue();
+
+        } catch (SQLException ex) {
+            System.err.println("Error" + ex);
+            return 0;
+        }
+    }
+
+    private int CreateNewCity() {
+        try {
+            Connection conn = SchedulingSoftware.conManager.open();
+            // Execute query and store result in a resultset
+            String query
+                    = "insert into city (city, createdBy, lastUpdateBy, createDate, countryId)values('New City','"
+                    + SchedulingSoftware.currentUserName
+                    + "','" + SchedulingSoftware.currentUserName
+                    + "', now(),"
+                    + Integer.toString(CreateNewCountry())
+                    + ");";
+            System.out.println(query);
+            conn.createStatement().executeUpdate(query);
+
+            ResultSet rs = conn.createStatement().executeQuery(
+                    "select max(cityId) from city;");
+            rs.next();
+            return (int) ((Number) rs.getObject(1)).intValue();
+
+        } catch (SQLException ex) {
+            System.err.println("Error" + ex);
+            return 0;
+        }
+    }
+
+    private int CreateNewAddress() {
+        try {
+            Connection conn = SchedulingSoftware.conManager.open();
+            // Execute query and store result in a resultset
+
+            String query = "insert into address (address, address2, cityId, postalCode, phone, createdBy, lastUpdateBy, createDate)values('New Address',"
+                    + "'',"
+                    + Integer.toString(CreateNewCity())
+                    + ",'00000'"
+                    + ",'0000000000','"
+                    + SchedulingSoftware.currentUserName
+                    + "','" + SchedulingSoftware.currentUserName
+                    + "', now());";
+            System.out.println(query);
+
+            conn.createStatement().executeUpdate(
+                    query
+            );
+
+            ResultSet rs = conn.createStatement().executeQuery(
+                    "select max(addressId) from address;");
+            rs.next();
+            return (int) ((Number) rs.getObject(1)).intValue();
+
+        } catch (SQLException ex) {
+            System.err.println("Error" + ex);
+            return 0;
+        }
+    }
+
+    private void CreateNewCustomer() {
+        try {
+            Connection conn = SchedulingSoftware.conManager.open();
+            // Execute query and store result in a resultset
+            String query = "insert into customer (customerName, addressId, active, createdBy, lastUpdateBy, createDate)values('new customer',"
+                    + CreateNewAddress() + ",1,'"
+                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());";
+            System.out.println(query);
+            conn.createStatement().executeUpdate(query);
+            refreshCustomerTable();
+
+        } catch (SQLException ex) {
+            System.err.println("Error" + ex);
+
+        }
+    }
 }

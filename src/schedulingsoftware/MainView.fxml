@@ -26,7 +26,7 @@
       </TableView>
       <Button fx:id="btnAddCustomer" layoutX="82.0" layoutY="314.0" mnemonicParsing="false" onAction="#handleBtnAddCustomerAction" prefHeight="25.0" prefWidth="110.0" text="Add Customer" />
       <Button layoutX="239.0" layoutY="314.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="110.0" text="Delete Customer" />
-      <Button fx:id="btnSaveCustomer" layoutX="395.0" layoutY="314.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="110.0" text="Save Changes" />
+      <Button fx:id="btnSaveCustomer" layoutX="395.0" layoutY="314.0" mnemonicParsing="false" onAction="#handleBtnSaveChanges" prefHeight="25.0" prefWidth="110.0" text="Save Changes" />
       <Label alignment="BOTTOM_LEFT" layoutX="202.0" layoutY="79.0" prefHeight="19.0" prefWidth="267.0" text="(Double click row to edit, press Enter to save changes.)">
          <font>
             <Font name="System Italic" size="11.0" />
