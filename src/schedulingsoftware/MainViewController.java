@@ -105,7 +105,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setCustomerName(event.getNewValue());
             updateData("customer", event.getNewValue(), customer.getCustomerId(), "customerName", "customerId");
-            refreshCustomerTable();
+            RefreshCustomerTable();
 
         }
         );
@@ -114,7 +114,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setAddress2(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "address2", "AddressId");
-            refreshCustomerTable();
+            RefreshCustomerTable();
 
         }
         );
@@ -123,7 +123,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setCity(event.getNewValue());
             updateData("city", event.getNewValue(), customer.getCityId(), "city", "CityId");
-            refreshCustomerTable();
+            RefreshCustomerTable();
         }
         );
         columnAddress.setOnEditCommit(event
@@ -131,7 +131,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setAddress(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "address", "AddressId");
-            refreshCustomerTable();
+            RefreshCustomerTable();
         }
         );
         columnPhone.setOnEditCommit(event
@@ -139,7 +139,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setPhone(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "phone", "AddressId");
-            refreshCustomerTable();
+            RefreshCustomerTable();
         }
         );
         columnZip.setOnEditCommit(event
@@ -147,7 +147,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setPostalCode(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "postalCode", "AddressId");
-            refreshCustomerTable();
+            RefreshCustomerTable();
         }
         );
         columnCountry.setOnEditCommit(event
@@ -155,7 +155,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setCountry(event.getNewValue());
             updateData("country", event.getNewValue(), customer.getCountryId(), "country", "countryId");
-            refreshCustomerTable();
+            RefreshCustomerTable();
         }
         );
         tableCustomer.setItems(null);
@@ -189,6 +189,7 @@ public class MainViewController implements Initializable {
         }
     }
 
+    // Event handle for Add User button click.
     public void handleBtnAddCustomerAction(ActionEvent event) throws SQLException, IOException {
         try {
             Connection conn = SchedulingSoftware.conManager.open();
@@ -209,10 +210,27 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void handleBtnSaveChanges(ActionEvent event) {
-        refreshCustomerTable();
+        RefreshCustomerTable();
     }
 
-    public void refreshCustomerTable() {
+    @FXML
+    private void handleBtnDeleteUser(ActionEvent event) throws SQLException {
+        try {
+            Connection connection = SchedulingSoftware.conManager.open();
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM country where countryId=?");
+            Customer selectedCustomer = tableCustomer.getSelectionModel().getSelectedItem();
+
+            statement.setInt(1, selectedCustomer.getCountryId());
+            System.out.println(statement);
+
+            statement.executeUpdate();
+            RefreshCustomerTable();
+        } catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        }
+    }
+
+    public void RefreshCustomerTable() {
         System.out.println("refreshing dat");
         customerData.removeAll(customerData);
         GetDataFromDatabase();
@@ -329,7 +347,7 @@ public class MainViewController implements Initializable {
                     + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());";
             System.out.println(query);
             conn.createStatement().executeUpdate(query);
-            refreshCustomerTable();
+            RefreshCustomerTable();
 
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
