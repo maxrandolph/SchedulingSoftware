@@ -17,10 +17,11 @@
         <columns>
           <TableColumn fx:id="columnName" prefWidth="135.0" text="Name" />
           <TableColumn fx:id="columnAddress" prefWidth="171.0" text="Address" />
-            <TableColumn prefWidth="116.0" text="Address2" />
-            <TableColumn prefWidth="115.0" text="City" />
-            <TableColumn prefWidth="115.0" text="Country" />
-            <TableColumn fx:id="columnPhone" prefWidth="122.0" text="Phone" />
+            <TableColumn fx:id="columnAddress2" prefWidth="92.0" text="Address2" />
+            <TableColumn fx:id="columnCity" prefWidth="88.0" text="City" />
+            <TableColumn fx:id="columnZip" prefWidth="109.0" text="Zip Code" />
+            <TableColumn fx:id="columnPhone" prefWidth="94.0" text="Phone" />
+            <TableColumn fx:id="columnCountry" prefWidth="85.0" text="Country" />
         </columns>
       </TableView>
       <Button fx:id="btnAddCustomer" layoutX="82.0" layoutY="314.0" mnemonicParsing="false" onAction="#handleBtnAddCustomerAction" prefHeight="25.0" prefWidth="110.0" text="Add Customer" />

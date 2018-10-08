@@ -73,6 +73,8 @@ public class Customer implements Serializable {
     private String city;
     private String country;
     private String postalCode;
+    private Integer cityId;
+    private Integer countryId;
 
     public Customer() {
     }
@@ -81,7 +83,7 @@ public class Customer implements Serializable {
         this.customerId = customerId;
     }
 
-    public Customer(Integer customerId, String customerName, String phone, String address, String address2, String postalCode, String city, String country) {
+    public Customer(Integer customerId, String customerName, String phone, String address, String address2, String postalCode, String city, String country, int addressId, int cityId, int countryId) {
         this.customerId = customerId;
         this.customerName = customerName;
         this.address = address;
@@ -90,6 +92,9 @@ public class Customer implements Serializable {
         this.city = city;
         this.country = country;
         this.postalCode = postalCode;
+        this.addressId = addressId;
+        this.cityId = cityId;
+        this.countryId = countryId;
 
     }
 
@@ -99,6 +104,22 @@ public class Customer implements Serializable {
 
     public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
+    }
+
+    public Integer getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(Integer cityId) {
+        this.cityId = cityId;
+    }
+
+    public Integer getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(Integer countryId) {
+        this.countryId = countryId;
     }
 
     public String getCustomerName() {

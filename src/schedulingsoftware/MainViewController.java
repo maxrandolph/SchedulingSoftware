@@ -38,6 +38,14 @@ public class MainViewController implements Initializable {
     @FXML
     public TableColumn<Customer, String> columnAddress;
     @FXML
+    public TableColumn<Customer, String> columnAddress2;
+    @FXML
+    public TableColumn<Customer, String> columnZip;
+    @FXML
+    public TableColumn<Customer, String> columnCity;
+    @FXML
+    public TableColumn<Customer, String> columnCountry;
+    @FXML
     public TableColumn<Customer, String> columnPhone;
 
     @FXML
@@ -65,16 +73,16 @@ public class MainViewController implements Initializable {
             customerData = FXCollections.observableArrayList();
             // Execute query and store result in a resultset
             ResultSet rs = conn.createStatement().executeQuery(
-                    "SELECT customer.customerId,customer.customerName,address.phone,address.address,address.address2,address.postalCode,city.city, country.country FROM customer \n"
+                    "SELECT customer.customerId,customer.customerName,address.phone,address.address,address.address2,address.postalCode,city.city, country.country, address.addressId, city.cityId, country.countryId FROM customer \n"
                     + "left join address on address.addressId = customer.addressId\n"
                     + "left join city on address.cityId = city.cityId\n"
                     + "left join country on country.countryId = city.countryId;");
             while (rs.next()) {
                 //get customers
                 customerData.add(new Customer(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
-                        rs.getString(6), rs.getString(7), rs.getString(8)));
+                        rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(9), rs.getInt(10), rs.getInt(11)));
             }
-
+            conn.close();
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
         }
@@ -85,16 +93,29 @@ public class MainViewController implements Initializable {
 
         columnName.setCellFactory(TextFieldTableCell.forTableColumn());
         columnAddress.setCellFactory(TextFieldTableCell.forTableColumn());
+        columnAddress2.setCellFactory(TextFieldTableCell.forTableColumn());
+        columnCountry.setCellFactory(TextFieldTableCell.forTableColumn());
+        columnCity.setCellFactory(TextFieldTableCell.forTableColumn());
+        columnZip.setCellFactory(TextFieldTableCell.forTableColumn());
         columnPhone.setCellFactory(TextFieldTableCell.forTableColumn());
 
         // Set all columns editable
         columnName.setEditable(true);
         columnAddress.setEditable(true);
         columnPhone.setEditable(true);
+        columnAddress2.setEditable(true);
+        columnCity.setEditable(true);
+        columnCountry.setEditable(true);
+        columnZip.setEditable(true);
+
         //makes columns editable
         columnName.setCellValueFactory(new PropertyValueFactory<>("customerName"));
-        columnAddress.setCellValueFactory(new PropertyValueFactory<>("addressStr"));
-        columnPhone.setCellValueFactory(new PropertyValueFactory<>("phoneStr"));
+        columnAddress.setCellValueFactory(new PropertyValueFactory<>("address"));
+        columnAddress2.setCellValueFactory(new PropertyValueFactory<>("address2"));
+        columnCity.setCellValueFactory(new PropertyValueFactory<>("city"));
+        columnCountry.setCellValueFactory(new PropertyValueFactory<>("country"));
+        columnZip.setCellValueFactory(new PropertyValueFactory<>("postalCode"));
+        columnPhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
 
         columnName.setOnEditCommit(event
                 -> {
@@ -103,18 +124,46 @@ public class MainViewController implements Initializable {
             updateData("customer", event.getNewValue(), customer.getCustomerId(), "customerName", "customerId");
         }
         );
+        columnAddress2.setOnEditCommit(event
+                -> {
+            Customer customer = event.getRowValue();
+            customer.setAddress2(event.getNewValue());
+            updateData("address", event.getNewValue(), customer.getAddressId(), "address2", "AddressId");
+        }
+        );
+        columnCity.setOnEditCommit(event
+                -> {
+            Customer customer = event.getRowValue();
+            customer.setCity(event.getNewValue());
+            updateData("city", event.getNewValue(), customer.getCityId(), "city", "CityId");
+        }
+        );
         columnAddress.setOnEditCommit(event
                 -> {
             Customer customer = event.getRowValue();
-            customer.setCustomerName(event.getNewValue());
+            customer.setAddress(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "address", "AddressId");
         }
         );
         columnPhone.setOnEditCommit(event
                 -> {
             Customer customer = event.getRowValue();
-            customer.setCustomerName(event.getNewValue());
+            customer.setPhone(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "phone", "AddressId");
+        }
+        );
+        columnZip.setOnEditCommit(event
+                -> {
+            Customer customer = event.getRowValue();
+            customer.setPostalCode(event.getNewValue());
+            updateData("address", event.getNewValue(), customer.getAddressId(), "postalCode", "AddressId");
+        }
+        );
+        columnCountry.setOnEditCommit(event
+                -> {
+            Customer customer = event.getRowValue();
+            customer.setCountry(event.getNewValue());
+            updateData("country", event.getNewValue(), customer.getCountryId(), "country", "countryId");
         }
         );
         tableCustomer.setItems(null);
@@ -134,7 +183,6 @@ public class MainViewController implements Initializable {
             String data1 = (String) col.getCellObservableValue(row).getValue();
             //cell
             Customer row1 = tableCustomer.getSelectionModel().getSelectedItem();
-            Integer c1 = row1.getCustomerId();
             //row
             PreparedStatement statement = connection.prepareStatement("UPDATE " + tableName + " SET " + columnToUpdate + "=? WHERE " + entityIdName + "=?");
 
