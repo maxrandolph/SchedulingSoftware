@@ -9,9 +9,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
@@ -19,9 +22,10 @@ import javafx.scene.control.TableView;
 import schedulingsoftware.Entities.Customer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TablePosition;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import schedulingsoftware.Entities.Appointment;
 
 /**
  * FXML Controller class
@@ -30,9 +34,15 @@ import javafx.scene.control.cell.TextFieldTableCell;
  */
 public class MainViewController implements Initializable {
 
+    // Tables
     @FXML
     public TableView<Customer> tableCustomer;
+    @FXML
+    public TableView<Appointment> tableAppointment;
+    @FXML
+    public TableView<Appointment> tableAppointmentDateFiltered;
 
+    // Customer columns
     @FXML
     public TableColumn<Customer, String> columnName;
     @FXML
@@ -48,14 +58,41 @@ public class MainViewController implements Initializable {
     @FXML
     public TableColumn<Customer, String> columnPhone;
 
+    // Appointment columns
     @FXML
-    public Button btnSaveCustomer;
+    public TableColumn<Appointment, String> columnAptCurrentTitle;
+    @FXML
+    public TableColumn<Appointment, String> columnAptCurrentType;
+    @FXML
+    public TableColumn<Appointment, Date> columnAptCurrentStart;
+    @FXML
+    public TableColumn<Appointment, Date> columnAptCurrentEnd;
+
+    // Appointment date filtered columns
+    @FXML
+    public TableColumn<Customer, String> columnAptDateTitle;
+    @FXML
+    public TableColumn<Customer, String> columnAptDateType;
+    @FXML
+    public TableColumn<Customer, String> columnAptDateStart;
+    @FXML
+    public TableColumn<Customer, String> columnAptDateEnd;
+
+    // Buttons
+    @FXML
+    public Button btnExit;
     @FXML
     public Button btnAddCustomer;
     @FXML
     public Button btnDeleteCustomer;
 
+    // Main data lists.
     private ObservableList<Customer> customerData;
+    private ObservableList<Appointment> appointmentData;
+
+    // Lists that populate the table views based on what is selected.
+//    FilteredList<Appointment> appointmentCurrentData;// = new FilteredList<>(appointmentData);
+//  FilteredList<Appointment> appointmentDateData = new FilteredList<>(appointmentData);
 
     /**
      * Initializes the controller class.
@@ -68,11 +105,15 @@ public class MainViewController implements Initializable {
 
     @FXML
     public void initializeTableViewWithDatabase() {
-        GetDataFromDatabase();
+        RefreshCustomerData();
+        RefreshAppointmentData();
 
         //Set cell values to tableCustomer.
         tableCustomer.setEditable(true);
         tableCustomer.getSelectionModel().setCellSelectionEnabled(true);
+
+        tableAppointment.setEditable(true);
+        tableAppointment.getSelectionModel().setCellSelectionEnabled(true);
 
         columnName.setCellFactory(TextFieldTableCell.forTableColumn());
         columnAddress.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -82,6 +123,46 @@ public class MainViewController implements Initializable {
         columnZip.setCellFactory(TextFieldTableCell.forTableColumn());
         columnPhone.setCellFactory(TextFieldTableCell.forTableColumn());
 
+        columnAptCurrentTitle.setCellFactory(TextFieldTableCell.forTableColumn());
+        columnAptCurrentType.setCellFactory(TextFieldTableCell.forTableColumn());
+        columnAptCurrentStart.setCellFactory(column -> {
+            TableCell<Appointment, Date> cell = new TableCell<Appointment, Date>() {
+                private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
+                @Override
+                protected void updateItem(Date item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setText(null);
+                    } else {
+                        if (item != null) {
+                            this.setText(format.format(item));
+                        }
+                    }
+                }
+            };
+
+            return cell;
+        });
+        columnAptCurrentEnd.setCellFactory(column -> {
+            TableCell<Appointment, Date> cell = new TableCell<Appointment, Date>() {
+                private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
+                @Override
+                protected void updateItem(Date item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setText(null);
+                    } else {
+                        if (item != null) {
+                            this.setText(format.format(item));
+                        }
+                    }
+                }
+            };
+
+            return cell;
+        });
         // Set all columns editable
         columnName.setEditable(true);
         columnAddress.setEditable(true);
@@ -90,6 +171,11 @@ public class MainViewController implements Initializable {
         columnCity.setEditable(true);
         columnCountry.setEditable(true);
         columnZip.setEditable(true);
+
+        columnAptCurrentTitle.setEditable(true);
+        columnAptCurrentType.setEditable(true);
+        columnAptCurrentStart.setEditable(true);
+        columnAptCurrentEnd.setEditable(true);
 
         //makes columns editable
         columnName.setCellValueFactory(new PropertyValueFactory<>("customerName"));
@@ -100,12 +186,16 @@ public class MainViewController implements Initializable {
         columnZip.setCellValueFactory(new PropertyValueFactory<>("postalCode"));
         columnPhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
 
+        columnAptCurrentTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
+        columnAptCurrentType.setCellValueFactory(new PropertyValueFactory<>("description"));
+        columnAptCurrentStart.setCellValueFactory(new PropertyValueFactory<Appointment, Date>("start"));
+        columnAptCurrentEnd.setCellValueFactory(new PropertyValueFactory<Appointment, Date>("end"));
         columnName.setOnEditCommit(event
                 -> {
             Customer customer = event.getRowValue();
             customer.setCustomerName(event.getNewValue());
             updateData("customer", event.getNewValue(), customer.getCustomerId(), "customerName", "customerId");
-            RefreshCustomerTable();
+            RefreshTables();
 
         }
         );
@@ -114,7 +204,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setAddress2(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "address2", "AddressId");
-            RefreshCustomerTable();
+            RefreshTables();
 
         }
         );
@@ -123,7 +213,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setCity(event.getNewValue());
             updateData("city", event.getNewValue(), customer.getCityId(), "city", "CityId");
-            RefreshCustomerTable();
+            RefreshTables();
         }
         );
         columnAddress.setOnEditCommit(event
@@ -131,7 +221,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setAddress(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "address", "AddressId");
-            RefreshCustomerTable();
+            RefreshTables();
         }
         );
         columnPhone.setOnEditCommit(event
@@ -139,7 +229,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setPhone(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "phone", "AddressId");
-            RefreshCustomerTable();
+            RefreshTables();
         }
         );
         columnZip.setOnEditCommit(event
@@ -147,7 +237,7 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setPostalCode(event.getNewValue());
             updateData("address", event.getNewValue(), customer.getAddressId(), "postalCode", "AddressId");
-            RefreshCustomerTable();
+            RefreshTables();
         }
         );
         columnCountry.setOnEditCommit(event
@@ -155,34 +245,28 @@ public class MainViewController implements Initializable {
             Customer customer = event.getRowValue();
             customer.setCountry(event.getNewValue());
             updateData("country", event.getNewValue(), customer.getCountryId(), "country", "countryId");
-            RefreshCustomerTable();
+            RefreshTables();
         }
         );
         tableCustomer.setItems(null);
         tableCustomer.setItems(customerData);
 
+        tableAppointment.setItems(null);
+        tableAppointment.setItems(appointmentData);
+
     }
 
     public void updateData(String tableName, String newValue, Integer id, String columnToUpdate, String entityIdName) {
-        Connection connection = null;
+        Connection connection;
         try {
             connection = SchedulingSoftware.conManager.open();
-            Statement con = connection.createStatement();
-            //connection
-            TablePosition pos = tableCustomer.getSelectionModel().getSelectedCells().get(0);
-            int row = pos.getRow();
-            TableColumn col = pos.getTableColumn();
-            String data1 = (String) col.getCellObservableValue(row).getValue();
-            //cell
-            Customer row1 = tableCustomer.getSelectionModel().getSelectedItem();
-            //row
             PreparedStatement statement = connection.prepareStatement("UPDATE " + tableName + " SET " + columnToUpdate + "=? WHERE " + entityIdName + "=?");
 
             statement.setString(1, newValue);
             statement.setInt(2, id);
             System.out.println(statement);
             statement.executeUpdate();
-            con.close();
+            connection.close();
             //Query       
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
@@ -197,10 +281,7 @@ public class MainViewController implements Initializable {
             // Execute query and store result in a resultset
             CreateNewCustomer();
             conn.createStatement().executeUpdate(
-                    "insert into country (country, createdBy, lastUpdateBy, createDate)values('New City','"
-                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());"
-            );
-            System.out.println("insert into country (country, createdBy, lastUpdateBy, createDate)values('New Country','"
+                    "insert into country (country, createdBy, lastUpdateBy, createDate)values('New Country','"
                     + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());"
             );
         } catch (SQLException ex) {
@@ -209,8 +290,8 @@ public class MainViewController implements Initializable {
     }
 
     @FXML
-    private void handleBtnSaveChanges(ActionEvent event) {
-        RefreshCustomerTable();
+    private void HandleBtnExitAction(ActionEvent event) {
+        System.exit(0);
     }
 
     @FXML
@@ -224,22 +305,25 @@ public class MainViewController implements Initializable {
             System.out.println(statement);
 
             statement.executeUpdate();
-            RefreshCustomerTable();
+            RefreshTables();
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
         }
     }
 
-    public void RefreshCustomerTable() {
-        System.out.println("refreshing dat");
+    public void RefreshTables() {
+        System.out.println("refreshing data");
         customerData.removeAll(customerData);
-        GetDataFromDatabase();
+        appointmentData.removeAll(appointmentData);
+        RefreshCustomerData();
+        RefreshAppointmentData();
         tableCustomer.setItems(null);
         tableCustomer.setItems(customerData);
-
+        tableAppointment.setItems(null);
+        tableAppointment.setItems(appointmentData);
     }
 
-    private void GetDataFromDatabase() {
+    private void RefreshCustomerData() {
         try {
             Connection conn = SchedulingSoftware.conManager.open();
             customerData = FXCollections.observableArrayList();
@@ -254,6 +338,40 @@ public class MainViewController implements Initializable {
                 customerData.add(new Customer(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
                         rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(9), rs.getInt(10), rs.getInt(11)));
             }
+            
+        } catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        }
+    }
+
+    private void RefreshAppointmentData() {
+        try {
+            Connection conn = SchedulingSoftware.conManager.open();
+            appointmentData = FXCollections.observableArrayList();
+            // Execute query and store result in a resultset
+            ResultSet rs = conn.createStatement().executeQuery(
+                    "select appointmentId, customerId, title, description, `start`, `end` from appointment");
+            while (rs.next()) {
+                //get customers
+                appointmentData.add(
+                        new Appointment(
+                                rs.getInt(1),
+                                rs.getInt(2),
+                                rs.getString(3),
+                                rs.getString(4),
+                                rs.getDate(5),
+                                rs.getDate(6),
+                                SchedulingSoftware.currentUserName, SchedulingSoftware.currentUserName
+                        ));
+            }
+//            appointmentCurrentData = new FilteredList<>(appointmentData);
+//            appointmentCurrentData.setPredicate(
+//                    new Predicate<Appointment>() {
+//                public boolean test(Appointment t) {
+//                    return t.getCustomerId() == tableCustomer.getSelectionModel().getSelectedItem().getCustomerId(); // or true
+//                }
+//            }
+//            );
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
         }
@@ -265,13 +383,9 @@ public class MainViewController implements Initializable {
             Connection conn = SchedulingSoftware.conManager.open();
             // Execute query and store result in a resultset
             conn.createStatement().executeUpdate(
-                    "insert into country (country, createdBy, lastUpdateBy, createDate)values('New City','"
+                    "insert into country (country, createdBy, lastUpdateBy, createDate)values('New Country','"
                     + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());"
             );
-//            System.out.println("insert into country (country, createdBy, lastUpdateBy, createDate)values('New Country','"
-//                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());"
-//            );
-
             ResultSet rs = conn.createStatement().executeQuery(
                     "select max(countryId) from country;");
             rs.next();
@@ -347,11 +461,12 @@ public class MainViewController implements Initializable {
                     + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());";
             System.out.println(query);
             conn.createStatement().executeUpdate(query);
-            RefreshCustomerTable();
+            RefreshTables();
 
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
 
         }
     }
+
 }

@@ -96,7 +96,7 @@ public class Appointment implements Serializable {
         this.appointmentId = appointmentId;
     }
 
-    public Appointment(Integer appointmentId, int customerId, String title, String description, String location, String contact, String url, Date start, Date end, Date createDate, String createdBy, Date lastUpdate, String lastUpdateBy) {
+    public Appointment(int appointmentId, int customerId, String title, String description, String location, String contact, String url, Date start, Date end, Date createDate, String createdBy, Date lastUpdate, String lastUpdateBy) {
         this.appointmentId = appointmentId;
         this.customerId = customerId;
         this.title = title;
@@ -109,6 +109,17 @@ public class Appointment implements Serializable {
         this.createDate = createDate;
         this.createdBy = createdBy;
         this.lastUpdate = lastUpdate;
+        this.lastUpdateBy = lastUpdateBy;
+    }
+
+    public Appointment(int appointmentId, int customerId, String title, String description, Date start, Date end, String createdBy, String lastUpdateBy) {
+        this.appointmentId = appointmentId;
+        this.customerId = customerId;
+        this.title = title;
+        this.description = description;
+        this.start = start;
+        this.end = end;
+        this.createdBy = createdBy;
         this.lastUpdateBy = lastUpdateBy;
     }
 
@@ -240,5 +251,5 @@ public class Appointment implements Serializable {
     public String toString() {
         return "schedulingsoftware.Appointment[ appointmentId=" + appointmentId + " ]";
     }
-    
+
 }
