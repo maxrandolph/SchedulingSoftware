@@ -113,6 +113,9 @@ public class MainViewController implements Initializable {
 
     @FXML
     public void initializeTableViewWithDatabase() {
+        appointmentData = FXCollections.observableArrayList();
+        customerData = FXCollections.observableArrayList();
+
         RefreshCustomerData();
         RefreshAppointmentData();
 
@@ -137,7 +140,7 @@ public class MainViewController implements Initializable {
         columnAptCurrentType.setCellFactory(TextFieldTableCell.forTableColumn());
         columnAptCurrentStart.setCellFactory(column -> {
             TableCell<Appointment, Date> cell = new TableCell<Appointment, Date>() {
-                private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+                private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 
                 @Override
                 protected void updateItem(Date item, boolean empty) {
@@ -154,6 +157,7 @@ public class MainViewController implements Initializable {
 
             return cell;
         });
+
         appointmentCurrentData = new FilteredList<>(appointmentData);
         tableCustomer.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
@@ -173,7 +177,7 @@ public class MainViewController implements Initializable {
 
         columnAptCurrentEnd.setCellFactory(column -> {
             TableCell<Appointment, Date> cell = new TableCell<Appointment, Date>() {
-                private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+                private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 
                 @Override
                 protected void updateItem(Date item, boolean empty) {
@@ -215,8 +219,8 @@ public class MainViewController implements Initializable {
 
         columnAptCurrentTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
         columnAptCurrentType.setCellValueFactory(new PropertyValueFactory<>("description"));
-        columnAptCurrentStart.setCellValueFactory(new PropertyValueFactory<Appointment, Date>("start"));
-        columnAptCurrentEnd.setCellValueFactory(new PropertyValueFactory<Appointment, Date>("end"));
+        columnAptCurrentStart.setCellValueFactory(new PropertyValueFactory<>("start"));
+        columnAptCurrentEnd.setCellValueFactory(new PropertyValueFactory<>("end"));
         columnName.setOnEditCommit(event
                 -> {
             Customer customer = event.getRowValue();
@@ -275,6 +279,27 @@ public class MainViewController implements Initializable {
             RefreshTables();
         }
         );
+
+        // Appointment table event handling
+        columnAptCurrentTitle.setOnEditCommit(event
+                -> {
+            Appointment appointment = event.getRowValue();
+            appointment.setTitle(event.getNewValue());
+            updateData("appointment", event.getNewValue(), appointment.getAppointmentId(), "title", "appointmentId");
+            RefreshTables();
+        }
+        );
+        columnAptCurrentType.setOnEditCommit(event
+                -> {
+            Appointment appointment = event.getRowValue();
+            appointment.setDescription(event.getNewValue());
+            updateData("appointment", event.getNewValue(), appointment.getAppointmentId(), "description", "appointmentId");
+            RefreshTables();
+        }
+        );
+
+
+
         tableCustomer.setItems(null);
         tableCustomer.setItems(customerData);
 
@@ -303,7 +328,6 @@ public class MainViewController implements Initializable {
     // Event handle for Add User button click.
     public void handleBtnAddCustomerAction(ActionEvent event) throws SQLException, IOException {
         try {
-            customerData = FXCollections.observableArrayList();
             // Execute query and store result in a resultset
             CreateNewCustomer();
 
@@ -316,7 +340,6 @@ public class MainViewController implements Initializable {
     public void handleBtnAddAppointmentAction(ActionEvent event) throws SQLException, IOException {
         try {
 
-            appointmentData = FXCollections.observableArrayList();
             // Execute query and store result in a resultset
             CreateNewAppointment();
 
@@ -349,19 +372,17 @@ public class MainViewController implements Initializable {
 
     public void RefreshTables() {
         System.out.println("refreshing data");
+        appointmentData.removeAll(appointmentData);
         customerData.removeAll(customerData);
         RefreshCustomerData();
         RefreshAppointmentData();
         tableCustomer.setItems(null);
         tableCustomer.setItems(customerData);
-        tableAppointment.setItems(null);
-        tableAppointment.setItems(appointmentCurrentData);
     }
 
     private void RefreshCustomerData() {
         try {
             Connection conn = SchedulingSoftware.conManager.open();
-            customerData = FXCollections.observableArrayList();
             // Execute query and store result in a resultset
             ResultSet rs = conn.createStatement().executeQuery(
                     "SELECT customer.customerId,customer.customerName,address.phone,address.address,address.address2,address.postalCode,city.city, country.country, address.addressId, city.cityId, country.countryId FROM customer \n"
@@ -382,7 +403,7 @@ public class MainViewController implements Initializable {
     private void RefreshAppointmentData() {
         try {
             Connection conn = SchedulingSoftware.conManager.open();
-            appointmentData = FXCollections.observableArrayList();
+
             // Execute query and store result in a resultset
             ResultSet rs = conn.createStatement().executeQuery(
                     "select appointmentId, customerId, title, description, `start`, `end` from appointment");
@@ -400,9 +421,6 @@ public class MainViewController implements Initializable {
                         ));
             }
 
-            tableAppointment.setItems(null);
-
-            tableAppointment.setItems(appointmentCurrentData);
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
         }
