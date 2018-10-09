@@ -22,6 +22,7 @@ import javafx.scene.control.TableView;
 import schedulingsoftware.Entities.Customer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -86,13 +87,16 @@ public class MainViewController implements Initializable {
     @FXML
     public Button btnDeleteCustomer;
 
+    // Labels
+    @FXML
+    public Label lblAppointments;
+
     // Main data lists.
     private ObservableList<Customer> customerData;
     private ObservableList<Appointment> appointmentData;
-
-    // Lists that populate the table views based on what is selected.
-//    FilteredList<Appointment> appointmentCurrentData;// = new FilteredList<>(appointmentData);
-//  FilteredList<Appointment> appointmentDateData = new FilteredList<>(appointmentData);
+    private FilteredList<Appointment> appointmentCurrentData; // Lists that populate the table views based on what is selected.
+    //    FilteredList<Appointment> appointmentCurrentData;// = new FilteredList<>(appointmentData);
+    //  FilteredList<Appointment> appointmentDateData = new FilteredList<>(appointmentData);
 
     /**
      * Initializes the controller class.
@@ -111,9 +115,11 @@ public class MainViewController implements Initializable {
         //Set cell values to tableCustomer.
         tableCustomer.setEditable(true);
         tableCustomer.getSelectionModel().setCellSelectionEnabled(true);
+        tableCustomer.setPlaceholder(new Label("No customers exist."));
 
         tableAppointment.setEditable(true);
         tableAppointment.getSelectionModel().setCellSelectionEnabled(true);
+        tableAppointment.setPlaceholder(new Label("No appointments exist."));
 
         columnName.setCellFactory(TextFieldTableCell.forTableColumn());
         columnAddress.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -144,6 +150,21 @@ public class MainViewController implements Initializable {
 
             return cell;
         });
+        appointmentCurrentData = new FilteredList<>(appointmentData);
+        tableCustomer.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                System.out.println(newSelection);
+                lblAppointments.setText(newSelection.getCustomerName() + "'s Appointments");
+                appointmentCurrentData.setPredicate(
+                        new Predicate<Appointment>() {
+                    public boolean test(Appointment t) {
+                        return t.getCustomerId() == newSelection.getCustomerId();
+                    }
+                }
+                );
+            }
+        });
+
         columnAptCurrentEnd.setCellFactory(column -> {
             TableCell<Appointment, Date> cell = new TableCell<Appointment, Date>() {
                 private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
@@ -252,7 +273,7 @@ public class MainViewController implements Initializable {
         tableCustomer.setItems(customerData);
 
         tableAppointment.setItems(null);
-        tableAppointment.setItems(appointmentData);
+        tableAppointment.setItems(appointmentCurrentData);
 
     }
 
@@ -314,13 +335,10 @@ public class MainViewController implements Initializable {
     public void RefreshTables() {
         System.out.println("refreshing data");
         customerData.removeAll(customerData);
-        appointmentData.removeAll(appointmentData);
         RefreshCustomerData();
         RefreshAppointmentData();
         tableCustomer.setItems(null);
         tableCustomer.setItems(customerData);
-        tableAppointment.setItems(null);
-        tableAppointment.setItems(appointmentData);
     }
 
     private void RefreshCustomerData() {
@@ -338,7 +356,7 @@ public class MainViewController implements Initializable {
                 customerData.add(new Customer(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
                         rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(9), rs.getInt(10), rs.getInt(11)));
             }
-            
+
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
         }
@@ -364,14 +382,10 @@ public class MainViewController implements Initializable {
                                 SchedulingSoftware.currentUserName, SchedulingSoftware.currentUserName
                         ));
             }
-//            appointmentCurrentData = new FilteredList<>(appointmentData);
-//            appointmentCurrentData.setPredicate(
-//                    new Predicate<Appointment>() {
-//                public boolean test(Appointment t) {
-//                    return t.getCustomerId() == tableCustomer.getSelectionModel().getSelectedItem().getCustomerId(); // or true
-//                }
-//            }
-//            );
+
+            tableAppointment.setItems(null);
+
+            tableAppointment.setItems(appointmentCurrentData);
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
         }
