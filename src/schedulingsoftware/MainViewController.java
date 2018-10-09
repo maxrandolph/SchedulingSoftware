@@ -86,11 +86,15 @@ public class MainViewController implements Initializable {
     public Button btnAddCustomer;
     @FXML
     public Button btnDeleteCustomer;
-
+    @FXML
+    public Button btnAddAppointment;
+    @FXML
+    public Button btnDeleteAppointment;
     // Labels
     @FXML
     public Label lblAppointments;
 
+    public Customer selectedCustomer;
     // Main data lists.
     private ObservableList<Customer> customerData;
     private ObservableList<Appointment> appointmentData;
@@ -154,7 +158,9 @@ public class MainViewController implements Initializable {
         tableCustomer.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 System.out.println(newSelection);
+                btnAddAppointment.setDisable(false);
                 lblAppointments.setText(newSelection.getCustomerName() + "'s Appointments");
+                selectedCustomer = tableCustomer.getSelectionModel().getSelectedItem();
                 appointmentCurrentData.setPredicate(
                         new Predicate<Appointment>() {
                     public boolean test(Appointment t) {
@@ -297,16 +303,25 @@ public class MainViewController implements Initializable {
     // Event handle for Add User button click.
     public void handleBtnAddCustomerAction(ActionEvent event) throws SQLException, IOException {
         try {
-            Connection conn = SchedulingSoftware.conManager.open();
             customerData = FXCollections.observableArrayList();
             // Execute query and store result in a resultset
             CreateNewCustomer();
-            conn.createStatement().executeUpdate(
-                    "insert into country (country, createdBy, lastUpdateBy, createDate)values('New Country','"
-                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now());"
-            );
-        } catch (SQLException ex) {
+
+        } catch (Exception ex) {
             System.err.println("Error" + ex);
+        }
+    }
+
+    // Event handle for Add User button click.
+    public void handleBtnAddAppointmentAction(ActionEvent event) throws SQLException, IOException {
+        try {
+
+            appointmentData = FXCollections.observableArrayList();
+            // Execute query and store result in a resultset
+            CreateNewAppointment();
+
+        } catch (Exception ex) {
+            System.out.println("error" + ex);
         }
     }
 
@@ -339,6 +354,8 @@ public class MainViewController implements Initializable {
         RefreshAppointmentData();
         tableCustomer.setItems(null);
         tableCustomer.setItems(customerData);
+        tableAppointment.setItems(null);
+        tableAppointment.setItems(appointmentCurrentData);
     }
 
     private void RefreshCustomerData() {
@@ -477,6 +494,22 @@ public class MainViewController implements Initializable {
             conn.createStatement().executeUpdate(query);
             RefreshTables();
 
+        } catch (SQLException ex) {
+            System.err.println("Error" + ex);
+
+        }
+    }
+
+    private void CreateNewAppointment() {
+        try {
+            Connection conn = SchedulingSoftware.conManager.open();
+            // Execute query and store result in a resultset
+            String query = "insert into appointment (customerId, title, description, createdBy, lastUpdateBy, start, end, location, contact, url, createDate)values("
+                    + selectedCustomer.getCustomerId() + ",'New Appointment','Appointment Type','"
+                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now(), now(), 'empty', 'empty', 'empty', now());";
+            System.out.println(query);
+            conn.createStatement().executeUpdate(query);
+            RefreshTables();
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
 

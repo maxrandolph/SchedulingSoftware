@@ -39,7 +39,7 @@
             <TableColumn fx:id="columnAptCurrentEnd" prefWidth="114.0" text="End" />
         </columns>
       </TableView>
-      <DatePicker editable="false" layoutX="582.0" layoutY="331.0" prefHeight="25.0" prefWidth="203.0" />
+      <DatePicker editable="false" layoutX="582.0" layoutY="331.0" prefHeight="25.0" prefWidth="203.0" promptText="Select Date to Filter Appts." />
       <TableView fx:id="tableAppointmentDateFiltered" layoutX="424.0" layoutY="360.0" prefHeight="171.0" prefWidth="361.0">
         <columns>
           <TableColumn fx:id="columnAptDateTitle" prefWidth="75.0" text="Title" />
@@ -51,8 +51,8 @@
       <RadioButton layoutX="424.0" layoutY="335.0" mnemonicParsing="false" text="Week of" />
       <RadioButton layoutX="499.0" layoutY="335.0" mnemonicParsing="false" text="Month of" />
       <Button fx:id="btnExit" layoutX="685.0" layoutY="537.0" mnemonicParsing="false" onAction="#HandleBtnExitAction" prefHeight="25.0" prefWidth="100.0" text="Exit" />
-      <Button fx:id="btnAddCustomer1" layoutX="14.0" layoutY="537.0" mnemonicParsing="false" onAction="#handleBtnAddCustomerAction" prefHeight="25.0" prefWidth="139.0" text="Add Appointment" />
-      <Button fx:id="btnDeleteCustomer1" layoutX="156.0" layoutY="537.0" mnemonicParsing="false" onAction="#handleBtnDeleteUser" prefHeight="25.0" prefWidth="139.0" text="Delete Appointment" />
+      <Button fx:id="btnAddAppointment" disable="true" layoutX="14.0" layoutY="537.0" mnemonicParsing="false" onAction="#handleBtnAddAppointmentAction" prefHeight="25.0" prefWidth="139.0" text="Add Appointment" />
+      <Button fx:id="btnDeleteAppointment" layoutX="156.0" layoutY="537.0" mnemonicParsing="false" onAction="#handleBtnDeleteUser" prefHeight="25.0" prefWidth="139.0" text="Delete Appointment" />
       <Label alignment="BOTTOM_LEFT" layoutX="14.0" layoutY="282.0" prefHeight="49.0" prefWidth="775.0" text="(Double click row to edit, press Enter to save changes. Select customer in customer table to view related appointments.)" wrapText="true">
          <font>
             <Font name="System Italic" size="11.0" />
