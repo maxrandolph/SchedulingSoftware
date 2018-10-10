@@ -26,6 +26,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.StringConverter;
+import javafx.util.converter.DateStringConverter;
 import schedulingsoftware.Entities.Appointment;
 
 /**
@@ -139,11 +141,21 @@ public class MainViewController implements Initializable {
         columnAptCurrentTitle.setCellFactory(TextFieldTableCell.forTableColumn());
         columnAptCurrentType.setCellFactory(TextFieldTableCell.forTableColumn());
         columnAptCurrentStart.setCellFactory(column -> {
-            TableCell<Appointment, Date> cell = new TableCell<Appointment, Date>() {
+            TableCell<Appointment, Date> cell = new TextFieldTableCell<Appointment, Date>(new StringConverter<Date>() {
+                @Override
+                public String toString(Date object) {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public Date fromString(String string) {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+            }) {
                 private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 
                 @Override
-                protected void updateItem(Date item, boolean empty) {
+                public void updateItem(Date item, boolean empty) {
                     super.updateItem(item, empty);
                     if (empty) {
                         setText(null);
@@ -298,8 +310,6 @@ public class MainViewController implements Initializable {
         }
         );
 
-
-
         tableCustomer.setItems(null);
         tableCustomer.setItems(customerData);
 
@@ -415,10 +425,11 @@ public class MainViewController implements Initializable {
                                 rs.getInt(2),
                                 rs.getString(3),
                                 rs.getString(4),
-                                rs.getDate(5),
-                                rs.getDate(6),
+                                rs.getTimestamp(5) != null ? new Date(rs.getTimestamp(5).getTime()) : rs.getDate(5),
+                                rs.getTimestamp(6) != null ? new Date(rs.getTimestamp(6).getTime()) : rs.getDate(6),
                                 SchedulingSoftware.currentUserName, SchedulingSoftware.currentUserName
-                        ));
+                        )
+                );
             }
 
         } catch (SQLException ex) {
