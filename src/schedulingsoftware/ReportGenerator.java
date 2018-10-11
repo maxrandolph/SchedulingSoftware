@@ -6,7 +6,9 @@
 package schedulingsoftware;
 
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,22 +25,31 @@ public class ReportGenerator {
     public void GenerateApptTypesByMonth(ObservableList<Appointment> appointmentData) {
         String reportString = "";
         Map<Month, String> typeMap = new EnumMap<Month, String>(Month.class);
+        Map<String, Integer> typeCountMap = new HashMap<>();
 
-        Map<String, Integer> typeCountMap = new HashMap<String, Integer>();
-
-        for (Appointment appointment : appointmentData) {
-            String type = appointment.getDescription();
-            if (typeCountMap.containsKey(type)) {
-                typeCountMap.put(type, typeCountMap.get(type) + 1);
-            } else {
-                //key does not exists
-                typeCountMap.put(type, 1);
-            }
-            reportString += appointment.getDescription() + "\n";
-        }
+        ArrayList<String> typeCountList = new ArrayList<String>();
+        Calendar calAppt = Calendar.getInstance();
 
         for (final Month month : Month.values()) {
-            System.out.println(month);
+            typeCountList.removeAll(typeCountList);
+            typeCountMap.clear();
+
+            for (Appointment appointment : appointmentData) {
+                calAppt.setTime(appointment.getStart());
+                String type = appointment.getDescription();
+
+                if (calAppt.get(Calendar.MONTH)+1 == month.getValue()) {
+                    if (typeCountMap.containsKey(type)) {
+                        typeCountMap.put(type, typeCountMap.get(type) + 1);
+                    } else {
+                        //key does not exists
+                        typeCountMap.put(type, 1);
+                    }
+
+                }
+
+            }
+            reportString += month + "\n" + typeCountMap.toString() + "\n";
         }
         System.out.println(reportString);
     }
