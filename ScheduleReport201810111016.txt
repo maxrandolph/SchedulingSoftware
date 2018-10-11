@@ -1,0 +1,26 @@
+Schedule Report - 10/11/2018/ 10:16
+
+JANUARY
+{}
+FEBRUARY
+{}
+MARCH
+{}
+APRIL
+{}
+MAY
+{}
+JUNE
+{}
+JULY
+{}
+AUGUST
+{}
+SEPTEMBER
+{Social=1, Job Interview=1}
+OCTOBER
+{Social=1, Project=2, Education=2, Finance=1}
+NOVEMBER
+{}
+DECEMBER
+{}

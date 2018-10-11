@@ -1,0 +1,15 @@
+Schedule Report - Types by Month -10/11/2018 10:53
+
+Brian
+-----
+Acting Class - Education -- Start: 2018-10-19 15:47:00.0 End: 2018-10-19 17:47:00.0
+
+test
+-----
+Breakfast with Tiffany - Social -- Start: 2018-09-08 10:30:00.0 End: 2018-10-09 18:29:57.0
+Hanging Out with Brian - Social -- Start: 2018-10-09 18:30:00.0 End: 2018-10-09 18:49:00.0
+Budget Adjustment - Finance -- Start: 2018-10-09 13:48:00.0 End: 2018-10-09 14:48:00.0
+Sprint Planning - Project -- Start: 2018-10-10 18:30:00.0 End: 2018-10-10 19:38:00.0
+Scrum Meeting - Project -- Start: 2018-10-11 08:15:00.0 End: 2018-10-11 08:35:00.0
+Bob Jones Interview - Job Interview -- Start: 2018-09-11 15:30:00.0 End: 2018-10-11 17:30:00.0
+Geography Lesson - Education -- Start: 2018-10-10 15:47:00.0 End: 2018-10-10 15:57:00.0

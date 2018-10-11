@@ -108,8 +108,10 @@ public class MainViewController implements Initializable {
     @FXML
     public Button btnGenTypesByMonthReport;
     @FXML
-    public Button btnGenUserSchedules;
-
+    public Button btnGenConsultantSchedules;
+    @FXML
+    public Button btnGenCustomerLongevity;
+    
     @FXML
     public ToggleButton btnFilterButton;
     // Labels
@@ -319,7 +321,7 @@ public class MainViewController implements Initializable {
 
         tableAppointment.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                btnDeleteCustomer.setDisable(false);
+                btnDeleteAppointment.setDisable(false);
             } else {
                 btnDeleteCustomer.setDisable(true);
             }
@@ -569,7 +571,7 @@ public class MainViewController implements Initializable {
     @FXML
     private void handleBtnDateFilter(ActionEvent event) {
         btnFilterButton.setText(btnFilterButton.isSelected() ? "Filter on Month" : "Filter on Week");
-        dpFilter.setPromptText(btnFilterButton.isSelected() ? "Select Date to Filter Appts by Month" : "Select Date to Filter Appts by Week");
+        dpFilter.setPromptText(btnFilterButton.isSelected() ? "Select Date to Filter Appts by Week" : "Select Date to Filter Appts by Month");
         if (dpFilter.getValue() != null) {
             appointmentDateData.setPredicate(
                     new Predicate<Appointment>() {
@@ -590,9 +592,25 @@ public class MainViewController implements Initializable {
     }
 
     @FXML
-    private void handleBtnGenTypesByMonthReport(ActionEvent event) {
+    private void handleBtnGenTypesByMonthReport(ActionEvent event) throws IOException {
         ReportGenerator generator = new ReportGenerator();
-        generator.GenerateApptTypesByMonth(appointmentData);
+        try {
+            generator.GenerateApptTypesByMonth(appointmentData);
+        } catch (IOException ex) {
+            System.out.println(ex);
+        }
+    }
+
+    @FXML
+    private void handleBtnGenConsultantScheduleReport(ActionEvent event) throws SQLException, IOException {
+        ReportGenerator generator = new ReportGenerator();
+        generator.GenerateAllConsultantSchedules();
+    }
+
+    @FXML
+    private void handleBtnGenCustomerLongevity(ActionEvent event) throws SQLException, IOException {
+        ReportGenerator generator = new ReportGenerator();
+        generator.GenerateAllCustomersLongevity();
     }
 
     @FXML

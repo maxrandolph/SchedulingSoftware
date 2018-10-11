@@ -5,13 +5,19 @@
  */
 package schedulingsoftware;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -55,10 +61,12 @@ public class LoginController implements Initializable {
             }
             if (validCreds) {
                 System.out.println("Logged in!");
+                LogLogin();
                 SchedulingSoftware.ChangeScene("MainView.fxml", btnLogin);
                 SchedulingSoftware.currentUserName = txtUsername.getText();
             } else {
                 System.out.println("Failed login.");
+                LogLoginFail();
             }
         } catch (SQLException ex) {
             System.out.println("SQL Exception thrown: " + ex);
@@ -74,4 +82,37 @@ public class LoginController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
     }
 
+    private void LogLogin() throws FileNotFoundException {
+        Date date = new Date();
+        long time = date.getTime();
+        Timestamp ts = new Timestamp(time);
+        String logFilename = "scheduleApp_logins.log";
+        File f = new File(logFilename);
+
+        PrintWriter out = null;
+        if (f.exists() && !f.isDirectory()) {
+            out = new PrintWriter(new FileOutputStream(new File(logFilename), true));
+        } else {
+            out = new PrintWriter(logFilename);
+        }
+        out.append("\r\n" + ts + " - User: {" + txtUsername.getText() + "} successful login");
+        out.close();
+    }
+
+    private void LogLoginFail() throws FileNotFoundException {
+        Date date = new Date();
+        long time = date.getTime();
+        Timestamp ts = new Timestamp(time);
+        String logFilename = "scheduleApp_logins.log";
+        File f = new File(logFilename);
+
+        PrintWriter out = null;
+        if (f.exists() && !f.isDirectory()) {
+            out = new PrintWriter(new FileOutputStream(new File(logFilename), true));
+        } else {
+            out = new PrintWriter(logFilename);
+        }
+        out.append("\r\n" + ts + " - User: {" + txtUsername.getText() + "} failed login");
+        out.close();
+    }
 }

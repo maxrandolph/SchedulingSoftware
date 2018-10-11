@@ -1,0 +1,9 @@
+Customer Report - Customer Loyalty - Generated 10/11/2018 11:06
+
+ID: 12
+-----
+James Franco - Customer Since: 2018-10-08 17:06:34.0
+
+ID: 24
+-----
+Fred Meyers - Customer Since: 2018-10-08 17:18:38.0

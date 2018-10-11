@@ -65,6 +65,9 @@
       </Label>
       <ToggleButton fx:id="btnFilterButton" layoutX="572.0" layoutY="331.0" mnemonicParsing="false" onAction="#handleBtnDateFilter" prefHeight="25.0" prefWidth="153.0" text="Filter on Week" AnchorPane.leftAnchor="572.0" />
       <Button fx:id="btnClearFilter" layoutX="980.0" layoutY="331.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleBtnClearFilter" text="X" AnchorPane.rightAnchor="12.0" />
-      <Button fx:id="btnGenTypesByMonthReport" layoutX="321.0" layoutY="537.0" mnemonicParsing="false" onAction="#handleBtnGenTypesByMonthReport" text="Report Appt. By Month" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="321.0" />
+      <Button fx:id="btnGenTypesByMonthReport" layoutX="416.0" layoutY="537.0" mnemonicParsing="false" onAction="#handleBtnGenTypesByMonthReport" text="Appt. Type by Month" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="416.0" />
+      <Label layoutX="306.0" layoutY="541.0" prefHeight="17.0" prefWidth="110.0" text="Generate Reports:" AnchorPane.bottomAnchor="18.0" AnchorPane.leftAnchor="306.0" />
+      <Button fx:id="btnGenConsultantSchedules" layoutX="551.0" layoutY="537.0" mnemonicParsing="false" onAction="#handleBtnGenConsultantScheduleReport" text="All Consultant Schedules" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="551.0" />
+      <Button fx:id="btnGenCustomerLongevity" layoutX="704.0" layoutY="537.0" mnemonicParsing="false" onAction="#handleBtnGenCustomerLongevity" text="Customer Longevity" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="704.0" />
    </children>
 </AnchorPane>
