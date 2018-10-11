@@ -9,17 +9,17 @@
 
 <AnchorPane id="AnchorPane" prefHeight="200" prefWidth="295.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="schedulingsoftware.LoginController">
     <children>
-      <AnchorPane layoutX="6.0" layoutY="5.0" prefHeight="190.0" prefWidth="283.0" style="-fx-border-color: black; -fx-border-radius: 5px;">
+      <AnchorPane layoutX="6.0" layoutY="5.0" prefHeight="190.0" prefWidth="283.0" style="-fx-border-color: black; -fx-border-radius: 5px;" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="5.0">
          <children>
-              <Label fx:id="label" alignment="TOP_CENTER" layoutX="64.0" layoutY="25.0" minHeight="16" minWidth="69" prefHeight="25.0" prefWidth="149.0" text="Scheduling Master" textAlignment="CENTER">
+              <Label fx:id="label" alignment="TOP_CENTER" layoutX="61.0" layoutY="14.0" minHeight="16" minWidth="69" prefHeight="45.0" prefWidth="154.0" text="Welcome to Scheduling App" textAlignment="CENTER" wrapText="true" AnchorPane.leftAnchor="61.0" AnchorPane.rightAnchor="67.0" AnchorPane.topAnchor="14.0">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font>
             </Label>
-            <TextField fx:id="txtUsername" layoutX="34.0" layoutY="64.0" prefHeight="25.0" prefWidth="208.0" promptText="Username" />
-            <PasswordField fx:id="txtPassword" layoutX="35.0" layoutY="101.0" prefHeight="25.0" prefWidth="208.0" promptText="Password" />
-            <Button fx:id="btnExit" layoutX="150.0" layoutY="137.0" mnemonicParsing="false" onAction="#HandleBtnExitAction" prefHeight="25.0" prefWidth="92.0" text="Exit" />
-              <Button fx:id="btnLogin" layoutX="34.0" layoutY="137.0" onAction="#handleBtnLoginAction" prefHeight="25.0" prefWidth="92.0" text="Login" />
+            <TextField fx:id="txtUsername" layoutX="34.0" layoutY="64.0" prefHeight="25.0" prefWidth="208.0" promptText="Username" AnchorPane.leftAnchor="34.0" AnchorPane.rightAnchor="40.0" />
+            <PasswordField fx:id="txtPassword" layoutX="35.0" layoutY="101.0" prefHeight="25.0" prefWidth="208.0" promptText="Password" AnchorPane.leftAnchor="35.0" AnchorPane.rightAnchor="39.0" />
+            <Button fx:id="btnExit" layoutX="150.0" layoutY="137.0" mnemonicParsing="false" onAction="#HandleBtnExitAction" prefHeight="25.0" prefWidth="92.0" text="Exit" AnchorPane.rightAnchor="41.0" />
+              <Button fx:id="btnLogin" layoutX="34.0" layoutY="137.0" onAction="#handleBtnLoginAction" prefHeight="25.0" prefWidth="92.0" text="Login" AnchorPane.leftAnchor="34.0" />
          </children>
       </AnchorPane>
     </children>

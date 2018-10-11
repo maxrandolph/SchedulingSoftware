@@ -9,25 +9,36 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import schedulingsoftware.Entities.Customer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.util.StringConverter;
-import javafx.util.converter.DateStringConverter;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import schedulingsoftware.Entities.Appointment;
 
 /**
@@ -77,9 +88,9 @@ public class MainViewController implements Initializable {
     @FXML
     public TableColumn<Customer, String> columnAptDateType;
     @FXML
-    public TableColumn<Customer, String> columnAptDateStart;
+    public TableColumn<Customer, Date> columnAptDateStart;
     @FXML
-    public TableColumn<Customer, String> columnAptDateEnd;
+    public TableColumn<Customer, Date> columnAptDateEnd;
 
     // Buttons
     @FXML
@@ -92,25 +103,41 @@ public class MainViewController implements Initializable {
     public Button btnAddAppointment;
     @FXML
     public Button btnDeleteAppointment;
+    @FXML
+    public Button btnClearFilter;
+    @FXML
+    public Button btnGenTypesByMonthReport;
+    @FXML
+    public Button btnGenUserSchedules;
+
+    @FXML
+    public ToggleButton btnFilterButton;
     // Labels
     @FXML
     public Label lblAppointments;
+
+    // Datepicker
+    @FXML
+    public DatePicker dpFilter;
 
     public Customer selectedCustomer;
     // Main data lists.
     private ObservableList<Customer> customerData;
     private ObservableList<Appointment> appointmentData;
     private FilteredList<Appointment> appointmentCurrentData; // Lists that populate the table views based on what is selected.
-    //    FilteredList<Appointment> appointmentCurrentData;// = new FilteredList<>(appointmentData);
-    //  FilteredList<Appointment> appointmentDateData = new FilteredList<>(appointmentData);
 
+    private FilteredList<Appointment> appointmentDateData; // Lists that populate the table views based on what is selected.
+
+    //  FilteredList<Appointment> appointmentDateData = new FilteredList<>(appointmentData);
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         initializeTableViewWithDatabase();
-
+        SchedulingSoftware.stage.setMinWidth(1016);
+        SchedulingSoftware.stage.setMinHeight(576);
+        SchedulingSoftware.stage.setTitle("Max Randolph Consultancy - Scheduler App");
     }
 
     @FXML
@@ -140,19 +167,11 @@ public class MainViewController implements Initializable {
 
         columnAptCurrentTitle.setCellFactory(TextFieldTableCell.forTableColumn());
         columnAptCurrentType.setCellFactory(TextFieldTableCell.forTableColumn());
-        columnAptCurrentStart.setCellFactory(column -> {
-            TableCell<Appointment, Date> cell = new TextFieldTableCell<Appointment, Date>(new StringConverter<Date>() {
-                @Override
-                public String toString(Date object) {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                }
-
-                @Override
-                public Date fromString(String string) {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                }
-            }) {
-                private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+        columnAptCurrentStart.setCellFactory(column -> { // Lambda function used here since this cell has unique properties that
+            // would make definining an entire function overkill.
+            TableCell<Appointment, Date> cell = new TextFieldTableCell<Appointment, Date>() {
+                private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
+                private TextField textField;
 
                 @Override
                 public void updateItem(Date item, boolean empty) {
@@ -161,20 +180,131 @@ public class MainViewController implements Initializable {
                         setText(null);
                     } else {
                         if (item != null) {
-                            this.setText(format.format(item));
+                            Timestamp sq = new Timestamp(item.getTime());
+                            setText(sq.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
                         }
                     }
+                }
+
+                @Override
+                public void cancelEdit() {
+                    super.cancelEdit();
+                    Timestamp sq = new Timestamp(getItem().getTime());
+                    setText(sq.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
+                }
+
+                @Override
+                public void startEdit() {
+                    super.startEdit();
+                    if (textField == null) {
+                        createDateTextField();
+                    }
+                    setGraphic(textField);
+                    textField.selectAll();
+
+                }
+
+                private void createDateTextField() {
+                    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
+
+                    textField = new TextField(getItem() == null ? "" : format.format(getItem()));
+                    textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+
+                    textField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+                        @Override
+                        public void handle(KeyEvent t) {
+
+                            if (t.getCode() == KeyCode.ENTER) {
+                                try {
+                                    Date newDate = (Date) dateFormatter.parse(textField.getText());
+                                    commitEdit(new java.sql.Timestamp(newDate.getTime()));
+                                } catch (ParseException ex) {
+                                    Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+                                    cancelEdit();
+                                }
+                            } else if (t.getCode() == KeyCode.ESCAPE) {
+                                cancelEdit();
+                            }
+                        }
+                    });
+                    this.setGraphic(textField);
                 }
             };
 
             return cell;
         });
 
+        columnAptCurrentEnd.setCellFactory(column -> { // Lambda function used here since this cell has unique properties that
+            // would make definining an entire function overkill.
+            TableCell<Appointment, Date> cell = new TextFieldTableCell<Appointment, Date>() {
+                private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
+                private TextField textField;
+
+                @Override
+                public void updateItem(Date item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setText(null);
+                    } else {
+                        if (item != null) {
+                            Timestamp sq = new Timestamp(item.getTime());
+                            setText(sq.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
+                        }
+                    }
+                }
+
+                @Override
+                public void cancelEdit() {
+                    super.cancelEdit();
+                    Timestamp sq = new Timestamp(getItem().getTime());
+                    setText(sq.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")));
+                }
+
+                @Override
+                public void startEdit() {
+                    super.startEdit();
+                    createDateTextField();
+                    textField.selectAll();
+
+                }
+
+                private void createDateTextField() {
+                    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
+
+                    textField = new TextField(getItem() == null ? "" : format.format(getItem()));
+                    textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+
+                    textField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+                        @Override
+                        public void handle(KeyEvent t) {
+
+                            if (t.getCode() == KeyCode.ENTER) {
+                                try {
+                                    Date newDate = (Date) dateFormatter.parse(textField.getText());
+                                    commitEdit(new java.sql.Timestamp(newDate.getTime()));
+                                } catch (ParseException ex) {
+                                    Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+                                    cancelEdit();
+                                }
+                            } else if (t.getCode() == KeyCode.ESCAPE) {
+                                cancelEdit();
+                            }
+                        }
+                    });
+                    this.setGraphic(textField);
+                }
+            };
+
+            return cell;
+        });
         appointmentCurrentData = new FilteredList<>(appointmentData);
+        appointmentDateData = new FilteredList<>(appointmentData);
+
         tableCustomer.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 System.out.println(newSelection);
                 btnAddAppointment.setDisable(false);
+                btnDeleteCustomer.setDisable(false);
                 lblAppointments.setText(newSelection.getCustomerName() + "'s Appointments");
                 selectedCustomer = tableCustomer.getSelectionModel().getSelectedItem();
                 appointmentCurrentData.setPredicate(
@@ -187,25 +317,35 @@ public class MainViewController implements Initializable {
             }
         });
 
-        columnAptCurrentEnd.setCellFactory(column -> {
-            TableCell<Appointment, Date> cell = new TableCell<Appointment, Date>() {
-                private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-
-                @Override
-                protected void updateItem(Date item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty) {
-                        setText(null);
-                    } else {
-                        if (item != null) {
-                            this.setText(format.format(item));
-                        }
-                    }
-                }
-            };
-
-            return cell;
+        tableAppointment.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                btnDeleteCustomer.setDisable(false);
+            } else {
+                btnDeleteCustomer.setDisable(true);
+            }
         });
+
+        dpFilter.valueProperty().addListener((ov, oldVal, newVal) -> {
+            appointmentDateData.setPredicate(
+                    new Predicate<Appointment>() {
+                public boolean test(Appointment t) {
+                    if (dpFilter.getValue() == null) {
+                        return true;
+                    }
+                    Calendar calT = Calendar.getInstance();
+                    Calendar calCompare = Calendar.getInstance();
+
+                    calT.setTime(t.getStart());
+                    calCompare.setTime(java.util.Date.from(dpFilter.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                    if (btnFilterButton.isSelected()) {
+                        return calT.get(Calendar.WEEK_OF_YEAR) == calCompare.get(Calendar.WEEK_OF_YEAR);
+                    }
+                    return calT.get(Calendar.MONTH) == calCompare.get(Calendar.MONTH);
+                }
+            }
+            );
+        });
+
         // Set all columns editable
         columnName.setEditable(true);
         columnAddress.setEditable(true);
@@ -231,8 +371,13 @@ public class MainViewController implements Initializable {
 
         columnAptCurrentTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
         columnAptCurrentType.setCellValueFactory(new PropertyValueFactory<>("description"));
-        columnAptCurrentStart.setCellValueFactory(new PropertyValueFactory<>("start"));
+        columnAptCurrentStart.setCellValueFactory(new PropertyValueFactory<Appointment, Date>("start"));
         columnAptCurrentEnd.setCellValueFactory(new PropertyValueFactory<>("end"));
+
+        columnAptDateTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
+        columnAptDateType.setCellValueFactory(new PropertyValueFactory<>("description"));
+        columnAptDateStart.setCellValueFactory(new PropertyValueFactory<>("start"));
+        columnAptDateEnd.setCellValueFactory(new PropertyValueFactory<>("end"));
         columnName.setOnEditCommit(event
                 -> {
             Customer customer = event.getRowValue();
@@ -309,12 +454,35 @@ public class MainViewController implements Initializable {
             RefreshTables();
         }
         );
+        columnAptCurrentStart.setOnEditCommit(event
+                -> {
+            Appointment appointment = event.getRowValue();
+            appointment.setStart(event.getNewValue());
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
+            updateData("appointment", dateFormatter.format(event.getNewValue()), appointment.getAppointmentId(), "start", "appointmentId");
+            RefreshTables();
+        }
+        );
+
+        columnAptCurrentEnd.setOnEditCommit(event
+                -> {
+            Appointment appointment = event.getRowValue();
+            appointment.setEnd(event.getNewValue());
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+            updateData("appointment", dateFormatter.format(event.getNewValue()), appointment.getAppointmentId(), "end", "appointmentId");
+            RefreshTables();
+        }
+        );
         tableCustomer.setItems(null);
         tableCustomer.setItems(customerData);
 
         tableAppointment.setItems(null);
         tableAppointment.setItems(appointmentCurrentData);
+
+        tableAppointmentDateFiltered.setItems(null);
+        tableAppointmentDateFiltered.setItems(appointmentDateData);
 
     }
 
@@ -374,10 +542,62 @@ public class MainViewController implements Initializable {
             System.out.println(statement);
 
             statement.executeUpdate();
+            btnDeleteCustomer.setDisable(true);
             RefreshTables();
         } catch (SQLException ex) {
             System.err.println("Error" + ex);
         }
+    }
+
+    @FXML
+    private void handleBtnDeleteAppointment(ActionEvent event) throws SQLException {
+        try {
+            Connection connection = SchedulingSoftware.conManager.open();
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM appointment where appointmentId=?");
+            Appointment selectedAppointment = tableAppointment.getSelectionModel().getSelectedItem();
+
+            statement.setInt(1, selectedAppointment.getAppointmentId());
+            System.out.println(statement);
+
+            statement.executeUpdate();
+            RefreshTables();
+        } catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        }
+    }
+
+    @FXML
+    private void handleBtnDateFilter(ActionEvent event) {
+        btnFilterButton.setText(btnFilterButton.isSelected() ? "Filter on Month" : "Filter on Week");
+        dpFilter.setPromptText(btnFilterButton.isSelected() ? "Select Date to Filter Appts by Month" : "Select Date to Filter Appts by Week");
+        if (dpFilter.getValue() != null) {
+            appointmentDateData.setPredicate(
+                    new Predicate<Appointment>() {
+                public boolean test(Appointment t) {
+                    Calendar calT = Calendar.getInstance();
+                    Calendar calCompare = Calendar.getInstance();
+
+                    calT.setTime(t.getStart());
+                    calCompare.setTime(java.util.Date.from(dpFilter.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                    if (btnFilterButton.isSelected()) {
+                        return calT.get(Calendar.WEEK_OF_YEAR) == calCompare.get(Calendar.WEEK_OF_YEAR);
+                    }
+                    return calT.get(Calendar.MONTH) == calCompare.get(Calendar.MONTH);
+                }
+            }
+            );
+        }
+    }
+
+    @FXML
+    private void handleBtnGenTypesByMonthReport(ActionEvent event) {
+        ReportGenerator generator = new ReportGenerator();
+        generator.GenerateApptTypesByMonth(appointmentData);
+    }
+
+    @FXML
+    private void handleBtnClearFilter(ActionEvent event) {
+        dpFilter.setValue(null);
     }
 
     public void RefreshTables() {
@@ -386,8 +606,8 @@ public class MainViewController implements Initializable {
         customerData.removeAll(customerData);
         RefreshCustomerData();
         RefreshAppointmentData();
-        tableCustomer.setItems(null);
-        tableCustomer.setItems(customerData);
+//        tableCustomer.setItems(null);
+//        tableCustomer.setItems(customerData);
     }
 
     private void RefreshCustomerData() {
