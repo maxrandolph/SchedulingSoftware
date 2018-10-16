@@ -111,7 +111,7 @@ public class MainViewController implements Initializable {
     public Button btnGenConsultantSchedules;
     @FXML
     public Button btnGenCustomerLongevity;
-    
+
     @FXML
     public ToggleButton btnFilterButton;
     // Labels
@@ -769,11 +769,12 @@ public class MainViewController implements Initializable {
 
     private void CreateNewAppointment() {
         try {
+
             Connection conn = SchedulingSoftware.conManager.open();
             // Execute query and store result in a resultset
             String query = "insert into appointment (customerId, title, description, createdBy, lastUpdateBy, start, end, location, contact, url, createDate)values("
                     + selectedCustomer.getCustomerId() + ",'New Appointment','Appointment Type','"
-                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', now(), now(), 'empty', 'empty', 'empty', now());";
+                    + SchedulingSoftware.currentUserName + "','" + SchedulingSoftware.currentUserName + "', CONCAT(CURDATE(), ' 09:00:00'), CONCAT(CURDATE(), ' 09:30:00'), 'empty', 'empty', 'empty', now());";
             System.out.println(query);
             conn.createStatement().executeUpdate(query);
             RefreshTables();
